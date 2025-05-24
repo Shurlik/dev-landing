@@ -1,7 +1,381 @@
 // Modern Portfolio JavaScript with Animations
 // No jQuery - Pure vanilla JavaScript
 
+// Internationalization system
+const translations = {
+    uk: {
+        // Navigation
+        'nav.services': 'Послуги',
+        'nav.about': 'Про нас',
+        'nav.contact': 'Контакти',
+        
+        // Hero section
+        'hero.title.line1': 'Сучасна веб',
+        'hero.title.line2': 'розробка',
+        'hero.description': 'Створюємо сучасні, швидкі та красиві веб-сайти використовуючи найновіші технології. Від простих лендінгів до повноцінних веб-додатків.',
+        'hero.button.start': 'Почати проект',
+        'hero.scroll': 'Прокрутіть вниз',
+        
+        // Services section
+        'services.title': 'Технології та послуги',
+        'services.description': 'Спеціалізуємося на створенні сайтів з використанням як класичної верстки, так і сучасних технологій',
+        'services.html.title': 'HTML/CSS/JS',
+        'services.html.description': 'Чистий, семантичний код з сучасними стандартами веб-розробки та адаптивним дизайном',
+        'services.react.title': 'React.js',
+        'services.react.description': 'Інтерактивні користувацькі інтерфейси з компонентною архітектурою та state management',
+        'services.nextjs.title': 'Next.js',
+        'services.nextjs.description': 'Full-stack React фреймворк з SSR, SSG та оптимізацією для кращої продуктивності',
+        'services.nodejs.title': 'Node.js',
+        'services.nodejs.description': 'Серверна розробка, API, бази даних та backend рішення для повноцінних додатків',
+        'services.webflow.title': 'Webflow',
+        'services.webflow.description': 'Візуальна розробка сайтів з можливістю швидкого прототипування та запуску',
+        'services.wix.title': 'Wix Development',
+        'services.wix.description': 'Кастомізація Wix сайтів, додавання функціоналу та інтеграція з третіми сервісами',
+        
+        // About section
+        'about.title': 'Про нас',
+        'about.description': 'Ми - команда розробників, які спеціалізуються на створенні сучасних веб-рішень. Наша мета - допомогти Вам в цифровому світі через якісні технічні рішення.',
+        'about.stat1.number': '365',
+        'about.stat1.label': 'Днів на рік працюємо',
+        'about.stat2.number': '24h',
+        'about.stat2.label': 'Максимальний час відповіді',
+        'about.stat3.number': '100%',
+        'about.stat3.label': 'Задоволення від роботи',
+        
+        // Contact section
+        'contact.title': 'Зв\'яжіться з нами',
+        'contact.description': 'Готові почати ваш проект? Зв\'яжіться з нами для обговорення деталей',
+        'contact.method.title': 'Зв\'язок з нами',
+        'contact.method.description': 'Використовуйте форму для всіх запитів.<br>Відповідаємо протягом 24 годин.',
+        'contact.hours.title': 'Час роботи',
+        'contact.hours.description': 'Пн-Пт: 10:00-18:00<br>Сб-Нд: За домовленістю',
+        'contact.location.title': 'Розташування',
+        'contact.location.description': 'Україна',
+        
+        // Contact form
+        'form.name': 'Ім\'я',
+        'form.email': 'Email',
+        'form.service': 'Послуга',
+        'form.service.placeholder': 'Оберіть послугу',
+        'form.service.landing': '🎯 Лендінг (одна сторінка)',
+        'form.service.corporate': '🏢 Корпоративний сайт',
+        'form.service.ecommerce': '🛒 Інтернет-магазин',
+        'form.service.webapp': '⚡ Веб-додаток',
+        'form.service.webflow': '🎨 Webflow сайт',
+        'form.service.wix': '🔧 Wix розробка',
+        'form.service.support': '🛠️ Підтримка сайту',
+        'form.service.consultation': '💬 Консультація',
+        'form.service.other': '❓ Інше',
+        'form.message': 'Повідомлення',
+        'form.message.placeholder': 'Розкажіть детальніше про ваш проект:\n• Які у вас цілі?\n• Який бюджет ви плануєте?\n• Які терміни реалізації?\n• Чи є приклади сайтів, які вам подобаються?',
+        'form.submit': 'Надіслати повідомлення',
+        
+        // Footer
+        'footer.rights': '© 2025 Alex Dev Team. Всі права захищені.',
+        
+        // Notifications
+        'notification.success': 'Дякуємо! Ваше повідомлення збережено. Ми зв\'яжемося з вами найближчим часом.',
+        'notification.error.bot': 'Помилка відправки форми',
+        'notification.error.fast': 'Будь ласка, заповніть форму повільніше',
+        'notification.error.email': 'Невірний формат email адреси',
+        'notification.error.name': 'Ім\'я може містити тільки літери',
+        'notification.error.message.short': 'Повідомлення занадто коротке (мінімум 10 символів)',
+        'notification.error.message.long': 'Повідомлення занадто довге (максимум 1000 символів)',
+        'notification.error.spam': 'Повідомлення містить заборонений контент',
+        'notification.error.rate': 'Зачекайте {time} секунд перед наступною відправкою',
+        'notification.error.save': 'Помилка збереження. Спробуйте ще раз.'
+    },
+    en: {
+        // Navigation
+        'nav.services': 'Services',
+        'nav.about': 'About',
+        'nav.contact': 'Contact',
+        
+        // Hero section
+        'hero.title.line1': 'Modern Web',
+        'hero.title.line2': 'Development',
+        'hero.description': 'We create modern, fast and beautiful websites using the latest technologies. From simple landing pages to full-featured web applications.',
+        'hero.button.start': 'Start Project',
+        'hero.scroll': 'Scroll Down',
+        
+        // Services section
+        'services.title': 'Technologies & Services',
+        'services.description': 'We specialize in creating websites using both classic layout and modern technologies',
+        'services.html.title': 'HTML/CSS/JS',
+        'services.html.description': 'Clean, semantic code with modern web development standards and responsive design',
+        'services.react.title': 'React.js',
+        'services.react.description': 'Interactive user interfaces with component architecture and state management',
+        'services.nextjs.title': 'Next.js',
+        'services.nextjs.description': 'Full-stack React framework with SSR, SSG and optimization for better performance',
+        'services.nodejs.title': 'Node.js',
+        'services.nodejs.description': 'Server development, APIs, databases and backend solutions for full applications',
+        'services.webflow.title': 'Webflow',
+        'services.webflow.description': 'Visual website development with rapid prototyping and launch capabilities',
+        'services.wix.title': 'Wix Development',
+        'services.wix.description': 'Wix site customization, functionality addition and third-party service integration',
+        
+        // About section
+        'about.title': 'About Us',
+        'about.description': 'We are a team of developers who specialize in creating modern web solutions. Our goal is to help you in the digital world through quality technical solutions.',
+        'about.stat1.number': '365',
+        'about.stat1.label': 'Days a year we work',
+        'about.stat2.number': '24h',
+        'about.stat2.label': 'Maximum response time',
+        'about.stat3.number': '100%',
+        'about.stat3.label': 'Work satisfaction',
+        
+        // Contact section
+        'contact.title': 'Get In Touch',
+        'contact.description': 'Ready to start your project? Contact us to discuss the details',
+        'contact.method.title': 'Contact Us',
+        'contact.method.description': 'Use the form for all inquiries.<br>We respond within 24 hours.',
+        'contact.hours.title': 'Working Hours',
+        'contact.hours.description': 'Mon-Fri: 10:00-18:00<br>Sat-Sun: By appointment',
+        'contact.location.title': 'Location',
+        'contact.location.description': 'Ukraine',
+        
+        // Contact form
+        'form.name': 'Name',
+        'form.email': 'Email',
+        'form.service': 'Service',
+        'form.service.placeholder': 'Choose a service',
+        'form.service.landing': '🎯 Landing Page',
+        'form.service.corporate': '🏢 Corporate Website',
+        'form.service.ecommerce': '🛒 E-commerce',
+        'form.service.webapp': '⚡ Web Application',
+        'form.service.webflow': '🎨 Webflow Site',
+        'form.service.wix': '🔧 Wix Development',
+        'form.service.support': '🛠️ Website Support',
+        'form.service.consultation': '💬 Consultation',
+        'form.service.other': '❓ Other',
+        'form.message': 'Message',
+        'form.message.placeholder': 'Tell us more about your project:\n• What are your goals?\n• What budget are you planning?\n• What timeline do you have?\n• Are there examples of sites you like?',
+        'form.submit': 'Send Message',
+        
+        // Footer
+        'footer.rights': '© 2025 Alex Dev Team. All rights reserved.',
+        
+        // Notifications
+        'notification.success': 'Thank you! Your message has been saved. We will contact you soon.',
+        'notification.error.bot': 'Form submission error',
+        'notification.error.fast': 'Please fill out the form more slowly',
+        'notification.error.email': 'Invalid email format',
+        'notification.error.name': 'Name can only contain letters',
+        'notification.error.message.short': 'Message too short (minimum 10 characters)',
+        'notification.error.message.long': 'Message too long (maximum 1000 characters)',
+        'notification.error.spam': 'Message contains prohibited content',
+        'notification.error.rate': 'Please wait {time} seconds before next submission',
+        'notification.error.save': 'Save error. Please try again.'
+    }
+};
+
+// Language detection and management
+class LanguageManager {
+    constructor() {
+        this.currentLang = this.detectLanguage();
+        this.init();
+    }
+    
+    detectLanguage() {
+        // Check if language is saved in localStorage
+        const savedLang = localStorage.getItem('preferred-language');
+        if (savedLang && translations[savedLang]) {
+            return savedLang;
+        }
+        
+        // Auto-detect from browser locale
+        const browserLang = navigator.language || navigator.languages[0] || 'en';
+        const langCode = browserLang.toLowerCase();
+        
+        // Ukrainian for ru, uk, ua locales
+        if (langCode.includes('ru') || langCode.includes('uk') || langCode.includes('ua')) {
+            return 'uk';
+        }
+        
+        // English for everything else
+        return 'en';
+    }
+    
+    init() {
+        this.createLanguageToggle();
+        this.applyTranslations();
+        console.log(`🌍 Language detected: ${this.currentLang}`);
+    }
+    
+    createLanguageToggle() {
+        // Add language toggle to navigation
+        const navMenu = document.querySelector('.nav-menu');
+        if (navMenu) {
+            const langToggle = document.createElement('li');
+            langToggle.className = 'nav-item lang-toggle';
+            langToggle.innerHTML = `
+                <button class="lang-btn" id="lang-toggle">
+                    <span class="lang-flag">${this.currentLang === 'uk' ? '🇺🇦' : '🇬🇧'}</span>
+                    <span class="lang-code">${this.currentLang.toUpperCase()}</span>
+                </button>
+            `;
+            navMenu.appendChild(langToggle);
+            
+            // Add click handler
+            const toggleBtn = langToggle.querySelector('#lang-toggle');
+            toggleBtn.addEventListener('click', () => this.toggleLanguage());
+        }
+    }
+    
+    toggleLanguage() {
+        this.currentLang = this.currentLang === 'uk' ? 'en' : 'uk';
+        localStorage.setItem('preferred-language', this.currentLang);
+        this.applyTranslations();
+        this.updateToggleButton();
+        
+        console.log(`🌍 Language switched to: ${this.currentLang}`);
+    }
+    
+    updateToggleButton() {
+        const flagSpan = document.querySelector('.lang-flag');
+        const codeSpan = document.querySelector('.lang-code');
+        
+        if (flagSpan && codeSpan) {
+            flagSpan.textContent = this.currentLang === 'uk' ? '🇺🇦' : '🇬🇧';
+            codeSpan.textContent = this.currentLang.toUpperCase();
+        }
+    }
+    
+    translate(key, replacements = {}) {
+        let text = translations[this.currentLang][key] || key;
+        
+        // Replace placeholders like {time}
+        Object.keys(replacements).forEach(placeholder => {
+            text = text.replace(new RegExp(`{${placeholder}}`, 'g'), replacements[placeholder]);
+        });
+        
+        return text;
+    }
+    
+    applyTranslations() {
+        // Update page title
+        document.title = `Alex Dev Team - ${this.translate('hero.title.line1')} ${this.translate('hero.title.line2')}`;
+        
+        // Navigation
+        this.updateElement('[href="#services"] .nav-link', 'nav.services');
+        this.updateElement('[href="#about"] .nav-link', 'nav.about');
+        this.updateElement('[href="#contact"] .nav-link', 'nav.contact');
+        
+        // Hero section
+        this.updateElement('.title-line:first-child', 'hero.title.line1');
+        this.updateElement('.title-line:last-child', 'hero.title.line2');
+        this.updateElement('.hero-description', 'hero.description');
+        this.updateElement('.btn-primary', 'hero.button.start');
+        this.updateElement('.scroll-text', 'hero.scroll');
+        
+        // Services section
+        this.updateElement('#services .section-title', 'services.title');
+        this.updateElement('#services .section-description', 'services.description');
+        
+        // Service cards
+        const serviceCards = document.querySelectorAll('.tech-card');
+        const serviceKeys = ['html', 'react', 'nextjs', 'nodejs', 'webflow', 'wix'];
+        serviceCards.forEach((card, index) => {
+            if (serviceKeys[index]) {
+                const key = serviceKeys[index];
+                const title = card.querySelector('h3');
+                const description = card.querySelector('p');
+                if (title) title.textContent = this.translate(`services.${key}.title`);
+                if (description) description.textContent = this.translate(`services.${key}.description`);
+            }
+        });
+        
+        // About section
+        this.updateElement('#about .section-title', 'about.title');
+        this.updateElement('#about .section-description', 'about.description');
+        
+        // Stats
+        const statLabels = document.querySelectorAll('.stat-label');
+        statLabels.forEach((label, index) => {
+            const keys = ['about.stat1.label', 'about.stat2.label', 'about.stat3.label'];
+            if (keys[index]) {
+                label.textContent = this.translate(keys[index]);
+            }
+        });
+        
+        // Contact section
+        this.updateElement('#contact .section-title', 'contact.title');
+        this.updateElement('#contact .section-description', 'contact.description');
+        
+        // Contact items
+        const contactItems = document.querySelectorAll('.contact-item');
+        if (contactItems[0]) {
+            const h4 = contactItems[0].querySelector('h4');
+            const p = contactItems[0].querySelector('p');
+            if (h4) h4.textContent = this.translate('contact.method.title');
+            if (p) p.innerHTML = this.translate('contact.method.description');
+        }
+        if (contactItems[1]) {
+            const h4 = contactItems[1].querySelector('h4');
+            const p = contactItems[1].querySelector('p');
+            if (h4) h4.textContent = this.translate('contact.hours.title');
+            if (p) p.innerHTML = this.translate('contact.hours.description');
+        }
+        if (contactItems[2]) {
+            const h4 = contactItems[2].querySelector('h4');
+            const p = contactItems[2].querySelector('p');
+            if (h4) h4.textContent = this.translate('contact.location.title');
+            if (p) p.textContent = this.translate('contact.location.description');
+        }
+        
+        // Contact form
+        this.updateElement('label[for="name"]', 'form.name');
+        this.updateElement('label[for="email"]', 'form.email');
+        this.updateElement('label[for="service"]', 'form.service');
+        this.updateElement('label[for="message"]', 'form.message');
+        this.updateElement('.submit-btn .btn-text', 'form.submit');
+        
+        // Form options
+        const serviceSelect = document.getElementById('service');
+        if (serviceSelect) {
+            const options = serviceSelect.querySelectorAll('option');
+            options[0].textContent = this.translate('form.service.placeholder');
+            options[1].textContent = this.translate('form.service.landing');
+            options[2].textContent = this.translate('form.service.corporate');
+            options[3].textContent = this.translate('form.service.ecommerce');
+            options[4].textContent = this.translate('form.service.webapp');
+            options[5].textContent = this.translate('form.service.webflow');
+            options[6].textContent = this.translate('form.service.wix');
+            options[7].textContent = this.translate('form.service.support');
+            options[8].textContent = this.translate('form.service.consultation');
+            options[9].textContent = this.translate('form.service.other');
+        }
+        
+        // Message placeholder
+        const messageTextarea = document.getElementById('message');
+        if (messageTextarea) {
+            messageTextarea.placeholder = this.translate('form.message.placeholder');
+        }
+        
+        // Footer
+        this.updateElement('.footer-bottom p', 'footer.rights');
+        
+        // Footer links
+        const footerLinks = document.querySelectorAll('.footer-links a');
+        if (footerLinks[0]) footerLinks[0].textContent = this.translate('nav.services');
+        if (footerLinks[1]) footerLinks[1].textContent = this.translate('nav.about');
+        if (footerLinks[2]) footerLinks[2].textContent = this.translate('nav.contact');
+    }
+    
+    updateElement(selector, translationKey) {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.textContent = this.translate(translationKey);
+        }
+    }
+}
+
+// Initialize language manager
+let langManager;
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize language system
+    langManager = new LanguageManager();
     
     // Navigation scroll effect
     const navbar = document.getElementById('navbar');
@@ -92,31 +466,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         statsObserver.observe(statsSection);
     }
-    
-    // Typing animation for hero title - DISABLED
-    // function typeWriter() {
-    //     const titleLines = document.querySelectorAll('.title-line');
-    //     titleLines.forEach((line, index) => {
-    //         const text = line.textContent;
-    //         line.textContent = '';
-    //         line.style.opacity = '1';
-    //         
-    //         setTimeout(() => {
-    //             let i = 0;
-    //             const timer = setInterval(() => {
-    //                 if (i < text.length) {
-    //                     line.textContent += text.charAt(i);
-    //                     i++;
-    //                 } else {
-    //                     clearInterval(timer);
-    //                 }
-    //             }, 100);
-    //         }, index * 1000);
-    //     });
-    // }
-    
-    // Start typing animation after page load - DISABLED
-    // setTimeout(typeWriter, 1000);
     
     // Enhanced parallax effect for tech icons with sticky behavior
     window.addEventListener('scroll', () => {
@@ -251,14 +600,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check 1: Honeypot field should be empty
             if (honeypotField && honeypotField.value.trim() !== '') {
                 console.log('Bot detected: honeypot field filled');
-                showNotification('Помилка відправки форми', 'error');
+                showNotification(langManager.translate('notification.error.bot'), 'error');
                 return;
             }
             
             // Check 2: Form filled too quickly (less than 3 seconds)
             if (formFillTime < 3000) {
                 console.log('Bot detected: form filled too quickly');
-                showNotification('Будь ласка, заповніть форму повільніше', 'error');
+                showNotification(langManager.translate('notification.error.fast'), 'error');
                 return;
             }
             
@@ -304,7 +653,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!emailRegex.test(email)) {
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
-            showNotification('Невірний формат email адреси', 'error');
+            showNotification(langManager.translate('notification.error.email'), 'error');
             return;
         }
         
@@ -313,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!nameRegex.test(name)) {
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
-            showNotification('Ім\'я може містити тільки літери', 'error');
+            showNotification(langManager.translate('notification.error.name'), 'error');
             return;
         }
         
@@ -321,14 +670,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (message.length < 10) {
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
-            showNotification('Повідомлення занадто коротке (мінімум 10 символів)', 'error');
+            showNotification(langManager.translate('notification.error.message.short'), 'error');
             return;
         }
         
         if (message.length > 1000) {
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
-            showNotification('Повідомлення занадто довге (максимум 1000 символів)', 'error');
+            showNotification(langManager.translate('notification.error.message.long'), 'error');
             return;
         }
         
@@ -340,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hasSpam) {
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
-            showNotification('Повідомлення містить заборонений контент', 'error');
+            showNotification(langManager.translate('notification.error.spam'), 'error');
             return;
         }
         
@@ -352,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const waitTime = Math.ceil((60000 - (currentTime - parseInt(lastSubmission))) / 1000);
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
-            showNotification(`Зачекайте ${waitTime} секунд перед наступною відправкою`, 'error');
+            showNotification(langManager.translate('notification.error.rate', {time: waitTime}), 'error');
             return;
         }
         
@@ -380,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.disabled = false;
                 
                 // Show success message
-                showNotification('Дякуємо! Ваше повідомлення збережено. Ми зв\'яжемося з вами найближчим часом.', 'success');
+                showNotification(langManager.translate('notification.success'), 'success');
                 
                 // Log for development (remove in production)
                 console.log('📧 Form submitted successfully:', {
@@ -395,7 +744,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Form submission error:', error);
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
-                showNotification('Помилка збереження. Спробуйте ще раз.', 'error');
+                showNotification(langManager.translate('notification.error.save'), 'error');
             }
             
         }, 1500 + Math.random() * 1000); // Random delay 1.5-2.5s to feel realistic
