@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     clearInterval(timer);
                 }
                 stat.textContent = Math.floor(current) + (stat.textContent.includes('+') ? '+' : '') + (stat.textContent.includes('%') ? '%' : '');
-            }, 50);
+            }, 30);
         });
     }
     
@@ -93,36 +93,90 @@ document.addEventListener('DOMContentLoaded', function() {
         statsObserver.observe(statsSection);
     }
     
-    // Typing animation for hero title
-    function typeWriter() {
-        const titleLines = document.querySelectorAll('.title-line');
-        titleLines.forEach((line, index) => {
-            const text = line.textContent;
-            line.textContent = '';
-            line.style.opacity = '1';
-            
-            setTimeout(() => {
-                let i = 0;
-                const timer = setInterval(() => {
-                    if (i < text.length) {
-                        line.textContent += text.charAt(i);
-                        i++;
-                    } else {
-                        clearInterval(timer);
-                    }
-                }, 100);
-            }, index * 1000);
-        });
-    }
+    // Typing animation for hero title - DISABLED
+    // function typeWriter() {
+    //     const titleLines = document.querySelectorAll('.title-line');
+    //     titleLines.forEach((line, index) => {
+    //         const text = line.textContent;
+    //         line.textContent = '';
+    //         line.style.opacity = '1';
+    //         
+    //         setTimeout(() => {
+    //             let i = 0;
+    //             const timer = setInterval(() => {
+    //                 if (i < text.length) {
+    //                     line.textContent += text.charAt(i);
+    //                     i++;
+    //                 } else {
+    //                     clearInterval(timer);
+    //                 }
+    //             }, 100);
+    //         }, index * 1000);
+    //     });
+    // }
     
-    // Start typing animation after page load
-    setTimeout(typeWriter, 1000);
+    // Start typing animation after page load - DISABLED
+    // setTimeout(typeWriter, 1000);
     
-    // Parallax effect for floating icons
+    // Enhanced parallax effect for tech icons with sticky behavior
     window.addEventListener('scroll', () => {
         const scrolled = window.pageYOffset;
-        const parallaxElements = document.querySelectorAll('.floating-icon');
+        const heroSection = document.querySelector('.sticky-hero');
+        const heroHeight = heroSection ? heroSection.offsetHeight : 0;
+        const stickyContent = document.querySelector('.hero-sticky-content');
         
+        // Debug sticky behavior
+        if (scrolled % 100 === 0) { // Log every 100px of scroll
+            console.log(`Scroll: ${scrolled}, Hero height: ${heroHeight}, Sticky content:`, stickyContent);
+            if (stickyContent) {
+                const rect = stickyContent.getBoundingClientRect();
+                console.log(`Sticky content rect:`, rect);
+                console.log(`Sticky content computed style:`, window.getComputedStyle(stickyContent).position);
+            }
+        }
+        
+        // Sticky effect progress (0 to 1)
+        const stickyProgress = Math.min(scrolled / (heroHeight - window.innerHeight), 1);
+        
+        // Enhanced tech icons animation
+        const techIcons = document.querySelectorAll('.tech-icon-float');
+        techIcons.forEach((icon, index) => {
+            const speed = parseFloat(icon.dataset.speed) || 0.5;
+            const baseMovement = scrolled * speed;
+            const stickyOffset = stickyProgress * 100; // Additional movement during sticky
+            
+            // Different movement patterns for left and right icons
+            const isLeft = icon.closest('.left-icons');
+            const direction = isLeft ? -1 : 1;
+            
+            // More complex movement with rotation and scaling
+            const rotationFactor = stickyProgress * 360 * direction;
+            const scaleFactor = 1 + (stickyProgress * 0.3);
+            const opacityFactor = 0.08 + (stickyProgress * 0.07);
+            
+            const yMovement = baseMovement + (stickyOffset * direction);
+            const xMovement = stickyOffset * direction * 0.5;
+            
+            icon.style.transform = `translate(${xMovement}px, ${yMovement}px) rotate(${rotationFactor}deg) scale(${scaleFactor})`;
+            icon.style.opacity = Math.min(opacityFactor, 0.2);
+        });
+        
+        // Hero content fade effect during sticky
+        if (stickyContent) {
+            const fadeProgress = Math.max(0, Math.min(1, (stickyProgress - 0.5) * 2));
+            stickyContent.style.opacity = 1 - fadeProgress * 0.3;
+            stickyContent.style.transform = `scale(${1 - fadeProgress * 0.05})`;
+            
+            // Add visual indicator when sticky is active
+            if (scrolled > 100 && scrolled < heroHeight - window.innerHeight) {
+                stickyContent.style.boxShadow = '0 0 30px rgba(99, 102, 241, 0.3)';
+            } else {
+                stickyContent.style.boxShadow = 'none';
+            }
+        }
+        
+        // Old parallax code for other floating elements
+        const parallaxElements = document.querySelectorAll('.floating-icon');
         parallaxElements.forEach((element, index) => {
             const speed = 0.5 + (index * 0.1);
             const yPos = -(scrolled * speed);
@@ -130,8 +184,58 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Form handling with animation
+    // Enhanced random floating animation for tech icons
+    function enhancedRandomFloat() {
+        const techIcons = document.querySelectorAll('.tech-icon-float');
+        techIcons.forEach(icon => {
+            const randomX = (Math.random() - 0.5) * 30;
+            const randomY = (Math.random() - 0.5) * 30;
+            const randomRotate = (Math.random() - 0.5) * 20;
+            const randomScale = 0.95 + Math.random() * 0.1;
+            
+            // Apply random movement as additional transform
+            const currentTransform = icon.style.transform || '';
+            const randomTransform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg) scale(${randomScale})`;
+            
+            // Temporarily apply random movement
+            icon.style.transition = 'transform 2s ease-out';
+            icon.style.transform = currentTransform + ' ' + randomTransform;
+            
+            // Reset after animation
+            setTimeout(() => {
+                icon.style.transition = 'all 0.3s ease';
+            }, 2000);
+        });
+    }
+    
+    // Start enhanced floating animation
+    setInterval(enhancedRandomFloat, 4000);
+    
+    // Tech icons hover effect on scroll
+    let lastScrollTime = 0;
+    window.addEventListener('scroll', () => {
+        const now = Date.now();
+        if (now - lastScrollTime > 100) { // Throttle
+            const techIcons = document.querySelectorAll('.tech-icon-float');
+            techIcons.forEach((icon, index) => {
+                // Add subtle hover effect based on scroll speed
+                const scrollSpeed = Math.abs(window.pageYOffset - (window.lastScrollY || 0));
+                window.lastScrollY = window.pageYOffset;
+                
+                if (scrollSpeed > 5) {
+                    icon.style.filter = `drop-shadow(0 0 ${20 + scrollSpeed}px rgba(99, 102, 241, ${0.3 + scrollSpeed * 0.01}))`;
+                } else {
+                    icon.style.filter = 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.3))';
+                }
+            });
+            lastScrollTime = now;
+        }
+    });
+    
+    // Form handling with bot protection
     const contactForm = document.getElementById('contact-form');
+    let formStartTime = Date.now(); // Track when form was loaded
+    
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -140,23 +244,161 @@ document.addEventListener('DOMContentLoaded', function() {
             const btnText = submitBtn.querySelector('.btn-text');
             const btnLoader = submitBtn.querySelector('.btn-loader');
             
-            // Start loading animation
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
+            // Bot protection checks
+            const honeypotField = this.querySelector('input[name="website"]');
+            const formFillTime = Date.now() - formStartTime;
             
-            // Simulate form submission
-            setTimeout(() => {
+            // Check 1: Honeypot field should be empty
+            if (honeypotField && honeypotField.value.trim() !== '') {
+                console.log('Bot detected: honeypot field filled');
+                showNotification('Помилка відправки форми', 'error');
+                return;
+            }
+            
+            // Check 2: Form filled too quickly (less than 3 seconds)
+            if (formFillTime < 3000) {
+                console.log('Bot detected: form filled too quickly');
+                showNotification('Будь ласка, заповніть форму повільніше', 'error');
+                return;
+            }
+            
+            // Check 3: reCAPTCHA v3 (if enabled)
+            if (typeof grecaptcha !== 'undefined') {
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('YOUR_SITE_KEY', {action: 'contact_form'}).then(function(token) {
+                        // Send form with token
+                        submitFormWithProtection(contactForm, submitBtn, token);
+                    });
+                });
+            } else {
+                // Submit without reCAPTCHA
+                submitFormWithProtection(contactForm, submitBtn, null);
+            }
+        });
+    }
+    
+    function submitFormWithProtection(form, submitBtn, recaptchaToken) {
+        // Start loading animation
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        
+        // Get form data for frontend processing
+        const formData = new FormData(form);
+        const submissionData = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            service: formData.get('service'),
+            message: formData.get('message'),
+            timestamp: new Date().toISOString(),
+            recaptcha_token: recaptchaToken,
+            ip: 'Hidden for privacy' // Can't get real IP on frontend
+        };
+        
+        // Additional frontend validation
+        const name = submissionData.name.trim();
+        const email = submissionData.email.trim();
+        const message = submissionData.message.trim();
+        
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+            showNotification('Невірний формат email адреси', 'error');
+            return;
+        }
+        
+        // Name validation (no numbers or special chars)
+        const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄ\s]+$/;
+        if (!nameRegex.test(name)) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+            showNotification('Ім\'я може містити тільки літери', 'error');
+            return;
+        }
+        
+        // Message length validation
+        if (message.length < 10) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+            showNotification('Повідомлення занадто коротке (мінімум 10 символів)', 'error');
+            return;
+        }
+        
+        if (message.length > 1000) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+            showNotification('Повідомлення занадто довге (максимум 1000 символів)', 'error');
+            return;
+        }
+        
+        // Frontend spam detection
+        const spamKeywords = ['viagra', 'casino', 'bitcoin', 'crypto', 'loan', 'insurance', 'free money', 'winner', 'congratulations'];
+        const messageWords = message.toLowerCase().split(' ');
+        const hasSpam = spamKeywords.some(keyword => messageWords.includes(keyword));
+        
+        if (hasSpam) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+            showNotification('Повідомлення містить заборонений контент', 'error');
+            return;
+        }
+        
+        // Rate limiting using localStorage
+        const lastSubmission = localStorage.getItem('lastContactSubmission');
+        const currentTime = Date.now();
+        
+        if (lastSubmission && (currentTime - parseInt(lastSubmission)) < 60000) { // 1 minute
+            const waitTime = Math.ceil((60000 - (currentTime - parseInt(lastSubmission))) / 1000);
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+            showNotification(`Зачекайте ${waitTime} секунд перед наступною відправкою`, 'error');
+            return;
+        }
+        
+        // Simulate form submission processing
+        setTimeout(() => {
+            try {
+                // Save submission to localStorage (for demo purposes)
+                const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
+                submissions.push(submissionData);
+                
+                // Keep only last 10 submissions
+                if (submissions.length > 10) {
+                    submissions.splice(0, submissions.length - 10);
+                }
+                
+                localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
+                localStorage.setItem('lastContactSubmission', currentTime.toString());
+                
                 // Reset form
-                this.reset();
+                form.reset();
+                formStartTime = Date.now(); // Reset timer
                 
                 // Stop loading animation
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
                 
                 // Show success message
-                showNotification('Дякуємо! Ваше повідомлення надіслано.', 'success');
-            }, 2000);
-        });
+                showNotification('Дякуємо! Ваше повідомлення збережено. Ми зв\'яжемося з вами найближчим часом.', 'success');
+                
+                // Log for development (remove in production)
+                console.log('📧 Form submitted successfully:', {
+                    name: submissionData.name,
+                    email: submissionData.email,
+                    service: submissionData.service,
+                    messageLength: submissionData.message.length,
+                    timestamp: submissionData.timestamp
+                });
+                
+            } catch (error) {
+                console.error('Form submission error:', error);
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                showNotification('Помилка збереження. Спробуйте ще раз.', 'error');
+            }
+            
+        }, 1500 + Math.random() * 1000); // Random delay 1.5-2.5s to feel realistic
     }
     
     // Notification system
@@ -165,12 +407,25 @@ document.addEventListener('DOMContentLoaded', function() {
         notification.className = `notification ${type}`;
         notification.textContent = message;
         
+        // Choose background color based on type
+        let backgroundColor;
+        switch(type) {
+            case 'success':
+                backgroundColor = '#10b981';
+                break;
+            case 'error':
+                backgroundColor = '#ef4444';
+                break;
+            default:
+                backgroundColor = '#6366f1';
+        }
+        
         // Style the notification
         Object.assign(notification.style, {
             position: 'fixed',
             top: '20px',
             right: '20px',
-            background: type === 'success' ? '#10b981' : '#6366f1',
+            background: backgroundColor,
             color: 'white',
             padding: '1rem 2rem',
             borderRadius: '8px',
@@ -229,19 +484,6 @@ document.addEventListener('DOMContentLoaded', function() {
             cursor.style.background = 'transparent';
         });
     });
-    
-    // Random floating animation for icons
-    function randomFloat() {
-        const icons = document.querySelectorAll('.floating-icon');
-        icons.forEach(icon => {
-            const randomX = Math.random() * 20 - 10;
-            const randomY = Math.random() * 20 - 10;
-            const currentTransform = icon.style.transform;
-            icon.style.transform = currentTransform + ` translate(${randomX}px, ${randomY}px)`;
-        });
-    }
-    
-    setInterval(randomFloat, 3000);
     
     // Tech cards hover effect
     document.querySelectorAll('.tech-card').forEach(card => {
@@ -338,6 +580,41 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', debouncedScrollHandler);
     
     console.log('🚀 DevStudio website loaded successfully!');
+    
+    // Development helper function to view stored submissions
+    window.viewStoredSubmissions = function() {
+        const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
+        if (submissions.length === 0) {
+            console.log('📭 No submissions stored yet');
+            return;
+        }
+        
+        console.group('📧 Stored Contact Submissions');
+        submissions.forEach((submission, index) => {
+            console.log(`\n--- Submission ${index + 1} ---`);
+            console.log(`Name: ${submission.name}`);
+            console.log(`Email: ${submission.email}`);
+            console.log(`Service: ${submission.service}`);
+            console.log(`Message: ${submission.message.substring(0, 100)}...`);
+            console.log(`Date: ${new Date(submission.timestamp).toLocaleString()}`);
+        });
+        console.groupEnd();
+        console.log('💡 Tip: Use clearStoredSubmissions() to clear all data');
+    };
+    
+    // Helper function to clear stored submissions
+    window.clearStoredSubmissions = function() {
+        localStorage.removeItem('contactSubmissions');
+        localStorage.removeItem('lastContactSubmission');
+        console.log('🗑️ All stored submissions cleared');
+    };
+    
+    // Show development tips
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('🛠️ Development Mode');
+        console.log('Use viewStoredSubmissions() to see form submissions');
+        console.log('Use clearStoredSubmissions() to clear stored data');
+    }
 });
 
 // Add mobile-specific styles
