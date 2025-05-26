@@ -587,8 +587,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
             const submitBtn = this.querySelector('.submit-btn');
             const btnText = submitBtn.querySelector('.btn-text');
             const btnLoader = submitBtn.querySelector('.btn-loader');
@@ -599,6 +597,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check 1: Honeypot field should be empty
             if (honeypotField && honeypotField.value.trim() !== '') {
+                e.preventDefault();
                 console.log('Bot detected: honeypot field filled');
                 showNotification(langManager.translate('notification.error.bot'), 'error');
                 return;
@@ -606,149 +605,92 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check 2: Form filled too quickly (less than 3 seconds)
             if (formFillTime < 3000) {
+                e.preventDefault();
                 console.log('Bot detected: form filled too quickly');
                 showNotification(langManager.translate('notification.error.fast'), 'error');
                 return;
             }
             
-            // Check 3: reCAPTCHA v3 (if enabled)
-            if (typeof grecaptcha !== 'undefined') {
-                grecaptcha.ready(function() {
-                    grecaptcha.execute('YOUR_SITE_KEY', {action: 'contact_form'}).then(function(token) {
-                        // Send form with token
-                        submitFormWithProtection(contactForm, submitBtn, token);
-                    });
-                });
-            } else {
-                // Submit without reCAPTCHA
-                submitFormWithProtection(contactForm, submitBtn, null);
-            }
-        });
-    }
-    
-    function submitFormWithProtection(form, submitBtn, recaptchaToken) {
-        // Start loading animation
-        submitBtn.classList.add('loading');
-        submitBtn.disabled = true;
-        
-        // Get form data for frontend processing
-        const formData = new FormData(form);
-        const submissionData = {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            service: formData.get('service'),
-            message: formData.get('message'),
-            timestamp: new Date().toISOString(),
-            recaptcha_token: recaptchaToken,
-            ip: 'Hidden for privacy' // Can't get real IP on frontend
-        };
-        
-        // Additional frontend validation
-        const name = submissionData.name.trim();
-        const email = submissionData.email.trim();
-        const message = submissionData.message.trim();
-        
-        // Email format validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            showNotification(langManager.translate('notification.error.email'), 'error');
-            return;
-        }
-        
-        // Name validation (no numbers or special chars)
-        const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄ\s]+$/;
-        if (!nameRegex.test(name)) {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            showNotification(langManager.translate('notification.error.name'), 'error');
-            return;
-        }
-        
-        // Message length validation
-        if (message.length < 10) {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            showNotification(langManager.translate('notification.error.message.short'), 'error');
-            return;
-        }
-        
-        if (message.length > 1000) {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            showNotification(langManager.translate('notification.error.message.long'), 'error');
-            return;
-        }
-        
-        // Frontend spam detection
-        const spamKeywords = ['viagra', 'casino', 'bitcoin', 'crypto', 'loan', 'insurance', 'free money', 'winner', 'congratulations'];
-        const messageWords = message.toLowerCase().split(' ');
-        const hasSpam = spamKeywords.some(keyword => messageWords.includes(keyword));
-        
-        if (hasSpam) {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            showNotification(langManager.translate('notification.error.spam'), 'error');
-            return;
-        }
-        
-        // Rate limiting using localStorage
-        const lastSubmission = localStorage.getItem('lastContactSubmission');
-        const currentTime = Date.now();
-        
-        if (lastSubmission && (currentTime - parseInt(lastSubmission)) < 60000) { // 1 minute
-            const waitTime = Math.ceil((60000 - (currentTime - parseInt(lastSubmission))) / 1000);
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            showNotification(langManager.translate('notification.error.rate', {time: waitTime}), 'error');
-            return;
-        }
-        
-        // Simulate form submission processing
-        setTimeout(() => {
-            try {
-                // Save submission to localStorage (for demo purposes)
-                const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
-                submissions.push(submissionData);
-                
-                // Keep only last 10 submissions
-                if (submissions.length > 10) {
-                    submissions.splice(0, submissions.length - 10);
-                }
-                
-                localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
-                localStorage.setItem('lastContactSubmission', currentTime.toString());
-                
-                // Reset form
-                form.reset();
-                formStartTime = Date.now(); // Reset timer
-                
-                // Stop loading animation
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
-                
-                // Show success message
-                showNotification(langManager.translate('notification.success'), 'success');
-                
-                // Log for development (remove in production)
-                console.log('📧 Form submitted successfully:', {
-                    name: submissionData.name,
-                    email: submissionData.email,
-                    service: submissionData.service,
-                    messageLength: submissionData.message.length,
-                    timestamp: submissionData.timestamp
-                });
-                
-            } catch (error) {
-                console.error('Form submission error:', error);
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
-                showNotification(langManager.translate('notification.error.save'), 'error');
+            // Frontend validation
+            const formData = new FormData(this);
+            const name = formData.get('name').trim();
+            const email = formData.get('email').trim();
+            const message = formData.get('message').trim();
+            
+            // Email format validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                showNotification(langManager.translate('notification.error.email'), 'error');
+                return;
             }
             
-        }, 1500 + Math.random() * 1000); // Random delay 1.5-2.5s to feel realistic
+            // Name validation (no numbers or special chars)
+            const nameRegex = /^[a-zA-Zа-яА-ЯіІїЇєЄ\s]+$/;
+            if (!nameRegex.test(name)) {
+                e.preventDefault();
+                showNotification(langManager.translate('notification.error.name'), 'error');
+                return;
+            }
+            
+            // Message length validation
+            if (message.length < 10) {
+                e.preventDefault();
+                showNotification(langManager.translate('notification.error.message.short'), 'error');
+                return;
+            }
+            
+            if (message.length > 1000) {
+                e.preventDefault();
+                showNotification(langManager.translate('notification.error.message.long'), 'error');
+                return;
+            }
+            
+            // Frontend spam detection
+            const spamKeywords = ['viagra', 'casino', 'bitcoin', 'crypto', 'loan', 'insurance', 'free money', 'winner', 'congratulations'];
+            const messageWords = message.toLowerCase().split(' ');
+            const hasSpam = spamKeywords.some(keyword => messageWords.includes(keyword));
+            
+            if (hasSpam) {
+                e.preventDefault();
+                showNotification(langManager.translate('notification.error.spam'), 'error');
+                return;
+            }
+            
+            // Rate limiting using localStorage
+            const lastSubmission = localStorage.getItem('lastContactSubmission');
+            const currentTime = Date.now();
+            
+            if (lastSubmission && (currentTime - parseInt(lastSubmission)) < 60000) { // 1 minute
+                e.preventDefault();
+                const waitTime = Math.ceil((60000 - (currentTime - parseInt(lastSubmission))) / 1000);
+                showNotification(langManager.translate('notification.error.rate', {time: waitTime}), 'error');
+                return;
+            }
+            
+            // If all checks pass, show loading state and allow form to submit to Formspree
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            
+            // Save submission timestamp
+            localStorage.setItem('lastContactSubmission', currentTime.toString());
+            
+            // Form will now submit to Formspree naturally
+            console.log('📧 Form validation passed, submitting to Formspree...');
+        });
+        
+        // Handle Formspree success/error responses
+        // Check if we're on the thank you page (Formspree redirects here)
+        if (window.location.search.includes('success=true') || window.location.hash.includes('success')) {
+            showNotification(langManager.translate('notification.success'), 'success');
+            // Clean up URL
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
     }
+    
+
     
     // Notification system
     function showNotification(message, type = 'info') {
